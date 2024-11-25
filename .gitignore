@@ -1,3 +1,4 @@
 /data 
 /decrypted_files
 .env
+__pycache__/
