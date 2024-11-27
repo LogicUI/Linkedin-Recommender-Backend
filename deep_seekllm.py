@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from typing import Optional, List, Mapping, Any
 from pydantic import PrivateAttr
 import os
+import logging
 
 load_dotenv()
 
@@ -39,16 +40,17 @@ class DeepSeekLLM(CustomLLM):
     def complete(self, prompt: str, messages: Optional[List[Mapping[str, Any]]] = None, **kwargs: Any) -> CompletionResponse:
         """Make a request to the DeepSeek API and return the response."""
         try:
-            
             if not messages:
                 messages = [
                     {"role": "system", "content": "You are a helpful assistant."},
                     {"role": "user", "content": prompt},
                 ]
             
+            logging.info(f"Prompt: {prompt}")
             response = self._client.chat.completions.create(
                 model=self._name,
                 messages=messages,
+                response_format={"type": "json_object"},
                 stream=False,
             )
             return CompletionResponse(text=response.choices[0].message.content)
