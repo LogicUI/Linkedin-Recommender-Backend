@@ -11,7 +11,8 @@ from dotenv import load_dotenv
 from typing import Optional, List, Mapping, Any
 from pydantic import PrivateAttr
 import os
-import logging
+from logger_setup import setup_logger
+logger = setup_logger(__name__)
 
 load_dotenv()
 

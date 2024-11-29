@@ -3,14 +3,12 @@ from llama_index.core import Settings
 from llama_index.readers.json import JSONReader
 from dotenv import load_dotenv
 from deep_seekllm import DeepSeekLLM 
-import logging
 import os 
 import sys
 import glob
+from logger_setup import setup_logger
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logger = setup_logger(__name__)
 
 load_dotenv()
 
