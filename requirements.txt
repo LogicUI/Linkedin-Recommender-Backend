@@ -5,3 +5,6 @@ cryptography
 uvicorn
 llama-index-vector-stores-postgres
 llama-index-readers-json
+llama-index-llms-openllm
+llama-index-embeddings-huggingface
+pytest

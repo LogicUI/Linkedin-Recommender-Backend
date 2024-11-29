@@ -2,7 +2,7 @@ import sys
 import os
 import pytest
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from clean_profiles import calculate_total_experience
+from clean_profiles import _calculate_total_experiences
 
 class TestTotalExperience:
     def test_correct_experiences(self):
@@ -71,7 +71,7 @@ class TestTotalExperience:
                 "starts_at": {"day": 1, "month": 7, "year": 2014},
             },
         ]
-        assert calculate_total_experience(experiences) == 10
+        assert _calculate_total_experiences(experiences) == 10
         
     def test_missing_property_raises_exception(self):
         incomplete_experiences = [
@@ -92,7 +92,7 @@ class TestTotalExperience:
         ]
 
         with pytest.raises(ValueError, match="Missing or incomplete 'starts_at' property in experience."):
-            calculate_total_experience(incomplete_experiences)
+            _calculate_total_experiences(incomplete_experiences)
 
     def test_non_integer_property_raises_exception(self):
         invalid_experiences = [
@@ -113,7 +113,7 @@ class TestTotalExperience:
         ]
 
         with pytest.raises(TypeError, match="'starts_at' properties 'day', 'month', and 'year' must be integers."):
-            calculate_total_experience(invalid_experiences)
+            _calculate_total_experiences(invalid_experiences)
             
     def test_ends_at_none(self):
         experiences = [
@@ -125,11 +125,11 @@ class TestTotalExperience:
                 "starts_at": {"day": 1, "month": 1, "year": 2022},
             }
         ]
-        assert calculate_total_experience(experiences) >= 3  # Should calculate up to the current date
+        assert _calculate_total_experiences(experiences) >= 3  # Should calculate up to the current date
 
     def test_empty_experiences(self):
         experiences = []  # No experiences provided
-        assert calculate_total_experience(experiences) == 0
+        assert _calculate_total_experiences(experiences) == 0
 
     def test_overlapping_experiences(self):
         experiences = [
@@ -148,7 +148,7 @@ class TestTotalExperience:
                 "starts_at": {"day": 1, "month": 6, "year": 2022},
             },
         ]
-        assert calculate_total_experience(experiences) == 1  # Should count overlapping durations once
+        assert _calculate_total_experiences(experiences) == 1  # Should count overlapping durations once
 
     def test_partial_dates(self):
         incomplete_experiences = [
@@ -162,7 +162,7 @@ class TestTotalExperience:
         ]
 
         with pytest.raises(ValueError, match="Missing or incomplete 'ends_at' property in experience."):
-            calculate_total_experience(incomplete_experiences)
+            _calculate_total_experiences(incomplete_experiences)
 
     def test_non_chronological_experiences(self):
         experiences = [
@@ -176,4 +176,4 @@ class TestTotalExperience:
         ]
 
         with pytest.raises(ValueError, match="'starts_at' date must be earlier than 'ends_at' date."):
-            calculate_total_experience(experiences)
+            _calculate_total_experiences(experiences)

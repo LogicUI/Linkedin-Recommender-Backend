@@ -1,16 +1,13 @@
 import json
-import os
 from datetime import date, timedelta
 
+def _merge_date_ranges(date_ranges: list[tuple[date, date]]) -> list[tuple[date, date]]:
+    if not date_ranges: 
+        return []
 
-def round_to_nearest_year(years, months, days):
-    fractional_year = months / 12 + days / 365
-    rounded_years = round(years + fractional_year)
-    return rounded_years
+    date_ranges = [(start, end) for start, end in date_ranges if start <= end]
 
-
-def merge_date_ranges(date_ranges):
-    date_ranges.sort()
+    date_ranges.sort(key=lambda x: (x[0], x[1]))
     merged_ranges = []
 
     for start, end in date_ranges:
@@ -21,12 +18,11 @@ def merge_date_ranges(date_ranges):
 
     return merged_ranges
 
-
-def calculate_total_experience(experiences):
+def _calculate_total_experiences(experiences: list[dict]) -> int:
     total_days = 0
     today = date.today()
     date_ranges = []
-
+    
     for experience in experiences:
         if "starts_at" not in experience or not all(
             key in experience["starts_at"] for key in ["day", "month", "year"]
@@ -67,7 +63,7 @@ def calculate_total_experience(experiences):
 
         date_ranges.append((start_date, end_date))
 
-    merged_ranges = merge_date_ranges(date_ranges)
+    merged_ranges = _merge_date_ranges(date_ranges)
 
     total_days = sum((end - start).days + 1 for start, end in merged_ranges)
 
@@ -76,16 +72,21 @@ def calculate_total_experience(experiences):
     return total_years
 
 
-def get_relevant_experieinces(experiences):
+def _get_relevant_experiences(experiences: list[dict]) -> list[dict]:
     experience_fields_to_keep = {"starts_at", "ends_at", "company", "title", "location"}
-    relevant_experiences = [
-        {key: experience[key] for key in experience_fields_to_keep if key in experience}
-        for experience in experiences
-    ]
+    relevant_experiences = []
+    for experience in experiences:
+        missing_keys = experience_fields_to_keep - experience.keys()
+        if missing_keys:
+            raise ValueError(f"Missing keys in experience: {missing_keys}")
+        relevant_experiences.append(
+            {key: experience[key] for key in experience_fields_to_keep}
+        )
+
     return relevant_experiences
 
 
-def get_relevant_profile_fields(profile):
+def _get_relevant_profile_files(profile: dict) -> dict:
     fields_to_keep = {
         "profile_url",
         "full_name",
@@ -94,19 +95,52 @@ def get_relevant_profile_fields(profile):
         "certifications",
         "personal_emails",
     }
-    return {key: profile[key] for key in fields_to_keep if key in profile}
+    
+    if not isinstance(profile, dict):
+        raise ValueError("Expected 'profile' to be a dictionary.")
 
+    relevant_profile = {key: profile[key] for key in fields_to_keep if key in profile}
 
-def get_companies_worked_for(experiences: list[dict]) -> list[str]:
-    return [experience["company"] for experience in experiences]
+    if "full_name" not in relevant_profile or not relevant_profile["full_name"].strip():
+        relevant_profile["full_name"] = "Unknown"
 
+    if "personal_emails" not in relevant_profile or not isinstance(relevant_profile["personal_emails"], list):
+        relevant_profile["personal_emails"] = []
 
-def get_relevant_educations(education: list[dict]) -> list[dict]:
+    return relevant_profile
+
+def _get_company_worked_for(experiences: list[dict]) -> list[str]:
+    if not isinstance(experiences, list):
+        raise TypeError("Expected a list of experiences.")
+    
+    companies = []
+    for experience in experiences:
+        if not isinstance(experience, dict):
+            raise TypeError("Each experience must be a dictionary.")
+        
+        company = experience.get("company", None)  
+        if isinstance(company, str):  
+            if company.strip():  
+                companies.append(company)
+        elif company is not None: 
+            raise TypeError(f"Expected 'company' to be a string, got {type(company)}.")
+    
+    return companies
+
+def _get_relevant_education(education: list[dict]) -> list[dict]:
     education_fields_to_keep = {"degree_name", "school"}
-    return [
-        {key: edu[key] for key in education_fields_to_keep if key in edu}
-        for edu in education
-    ]
+    
+    if not isinstance(education, list):
+        return []
+    
+    relevant_education = []
+    for edu in education:
+        if isinstance(edu, dict):
+            filtered_edu = {key: edu[key] for key in education_fields_to_keep if key in edu}
+            if filtered_edu:
+                relevant_education.append(filtered_edu)
+    
+    return relevant_education
 
 
 def extract_relavant_profile_properties(profile_name: dict) -> dict:
@@ -116,11 +150,11 @@ def extract_relavant_profile_properties(profile_name: dict) -> dict:
         experiences = data.get("experiences", [])
         education = data.get("education", [])
 
-        relevant_experiences = get_relevant_experieinces(experiences)
-        relevant_profile_fields = get_relevant_profile_fields(data)
-        companies_worked_for = get_companies_worked_for(relevant_experiences)
-        total_experiences = calculate_total_experience(relevant_experiences)
-        relevant_educations = get_relevant_educations(education)
+        relevant_experiences = _get_relevant_experiences(experiences)
+        relevant_profile_fields = _get_relevant_profile_files(data)
+        companies_worked_for = _get_company_worked_for(relevant_experiences)
+        total_experiences = _calculate_total_experiences(relevant_experiences)
+        relevant_educations = _get_relevant_education(education)
 
         profile_details = {
             "experience_details": relevant_experiences,
