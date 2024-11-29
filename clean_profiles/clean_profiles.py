@@ -1,8 +1,15 @@
 import json
 from datetime import date, timedelta
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from logger_setup import setup_logger
+
+logger = setup_logger(__name__)
+
 
 def _merge_date_ranges(date_ranges: list[tuple[date, date]]) -> list[tuple[date, date]]:
-    if not date_ranges: 
+    if not date_ranges:
         return []
 
     date_ranges = [(start, end) for start, end in date_ranges if start <= end]
@@ -18,11 +25,12 @@ def _merge_date_ranges(date_ranges: list[tuple[date, date]]) -> list[tuple[date,
 
     return merged_ranges
 
+
 def _calculate_total_experiences(experiences: list[dict]) -> int:
     total_days = 0
     today = date.today()
     date_ranges = []
-    
+
     for experience in experiences:
         if "starts_at" not in experience or not all(
             key in experience["starts_at"] for key in ["day", "month", "year"]
@@ -95,7 +103,7 @@ def _get_relevant_profile_files(profile: dict) -> dict:
         "certifications",
         "personal_emails",
     }
-    
+
     if not isinstance(profile, dict):
         raise ValueError("Expected 'profile' to be a dictionary.")
 
@@ -104,42 +112,48 @@ def _get_relevant_profile_files(profile: dict) -> dict:
     if "full_name" not in relevant_profile or not relevant_profile["full_name"].strip():
         relevant_profile["full_name"] = "Unknown"
 
-    if "personal_emails" not in relevant_profile or not isinstance(relevant_profile["personal_emails"], list):
+    if "personal_emails" not in relevant_profile or not isinstance(
+        relevant_profile["personal_emails"], list
+    ):
         relevant_profile["personal_emails"] = []
 
     return relevant_profile
 
+
 def _get_company_worked_for(experiences: list[dict]) -> list[str]:
     if not isinstance(experiences, list):
         raise TypeError("Expected a list of experiences.")
-    
-    companies = []
+
+    companies = set()
     for experience in experiences:
         if not isinstance(experience, dict):
             raise TypeError("Each experience must be a dictionary.")
-        
-        company = experience.get("company", None)  
-        if isinstance(company, str):  
-            if company.strip():  
-                companies.append(company)
-        elif company is not None: 
+
+        company = experience.get("company", None)
+        if isinstance(company, str):
+            if company.strip():
+                companies.add(company.strip())
+        elif company is not None:
             raise TypeError(f"Expected 'company' to be a string, got {type(company)}.")
-    
-    return companies
+
+    return sorted(companies)
+
 
 def _get_relevant_education(education: list[dict]) -> list[dict]:
     education_fields_to_keep = {"degree_name", "school"}
-    
+
     if not isinstance(education, list):
         return []
-    
+
     relevant_education = []
     for edu in education:
         if isinstance(edu, dict):
-            filtered_edu = {key: edu[key] for key in education_fields_to_keep if key in edu}
+            filtered_edu = {
+                key: edu[key] for key in education_fields_to_keep if key in edu
+            }
             if filtered_edu:
                 relevant_education.append(filtered_edu)
-    
+
     return relevant_education
 
 
@@ -167,5 +181,20 @@ def extract_relavant_profile_properties(profile_name: dict) -> dict:
         return profile_details
 
 
+def process_folder(input_folder: str, output_folder: str):
+    os.makedirs(output_folder, exist_ok=True)
+    for file_name in os.listdir(input_folder):
+        if file_name.endswith(".json"):
+            input_file_path = os.path.join(input_folder, file_name)
+            try:
+                processed_data = extract_relavant_profile_properties(input_file_path)
+                output_file_path = os.path.join(output_folder, file_name)
+                with open(output_file_path, "w") as output_file:
+                    json.dump(processed_data, output_file, indent=4)
+                logger.info(f"Processed and saved: {output_file_path}")
+            except Exception as e:
+                logger.error(f"Error processing {file_name}: {e}")
+
+
 if __name__ == "__main__":
-    extract_relavant_profile_properties("profile_2.json")
+    process_folder("./data", "./processed_data")

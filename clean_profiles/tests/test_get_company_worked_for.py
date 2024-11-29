@@ -82,3 +82,13 @@ class TestCompanyWorkedFor:
         ]
         expected = ["Company A"]
         assert _get_company_worked_for(experiences) == expected
+        
+    def test_duplicate(self):
+        experiences = [
+            {"company": "CompanyA"},
+            {"company": "CompanyB"},
+            {"company": "CompanyA"},  
+            {"company": " CompanyC "}, 
+        ]
+        expected = ["CompanyA", "CompanyB", "CompanyC"]
+        assert _get_company_worked_for(experiences) ==  expected 
