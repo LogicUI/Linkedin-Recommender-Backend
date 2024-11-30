@@ -18,7 +18,7 @@ load_dotenv()
 
 class DeepSeekLLM(CustomLLM):
     _context_window: int = 3900
-    _num_output: int = 256
+    _num_output: int = 1024
     _name: str = "deepseek-chat"
     _client: Any = PrivateAttr()
     _api_key: str = os.getenv("OPENAI_API_SECRET_KEY")
@@ -47,7 +47,7 @@ class DeepSeekLLM(CustomLLM):
                     {"role": "user", "content": prompt},
                 ]
             
-            logging.info(f"Prompt: {prompt}")
+            logger.info(f"Prompt: {prompt}")
             response = self._client.chat.completions.create(
                 model=self._name,
                 messages=messages,
@@ -83,4 +83,3 @@ if __name__ == "__main__":
      llm = Settings.llm
      query = "What is the meaning of life why are we here?"
      response = llm.complete(prompt=query)
-     print(response.text)
