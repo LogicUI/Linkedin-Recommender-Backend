@@ -1,0 +1,6 @@
+time executions of querying the llm
+
+2024-11-30 16:56:16,911 - Query executed in 0.83 seconds.
+2024-11-30 17:01:22,602 - Query executed in 224.73 seconds.
+2024-11-30 17:07:30,697 - Query executed in 216.78 seconds.
+2024-11-30 17:43:44,121 - Query executed in 208.67 seconds.
