@@ -2,3 +2,5 @@
 /decrypted_files
 .env
 __pycache__/
+/processed_data
+/examples
