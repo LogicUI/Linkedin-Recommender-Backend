@@ -1,21 +1,28 @@
-version: '3.8'
+version: '3.9'
 
 services:
   postgres:
+    hostname: localhost
+    restart: always
+    user: postgres
     image: ankane/pgvector
     container_name: pgvector_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"]
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - volume_name:/var/lib/postgresql/data
     profiles:
       - dev
       - test
       - prod
 
 volumes:
-  pgdata:
+  volume_name:                              
+    name: volume_name                         
