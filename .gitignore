@@ -4,3 +4,4 @@
 __pycache__/
 /processed_data
 /examples
+vector_db.log
