@@ -1,5 +1,6 @@
-#!/bin/bash
+#!/bin/zsh
 
+set -a
 source .env
 
 # Default profile
@@ -15,22 +16,23 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Set environment variables based on the profile
-if [ "$PROFILE" == "dev" ]; then
-    export POSTGRES_USER=$POSTGRES_USER_DEV
-    export POSTGRES_PASSWORD=$POSTGRES_PASSWORD_DEV
-    export POSTGRES_DB=$POSTGRES_DB_DEV
-elif [ "$PROFILE" == "test" ]; then
-    export POSTGRES_USER=$POSTGRES_USER_TEST
-    export POSTGRES_PASSWORD=$POSTGRES_PASSWORD_TEST
-    export POSTGRES_DB=$POSTGRES_DB_TEST
-elif [ "$PROFILE" == "prod" ]; then
-    export POSTGRES_USER=$POSTGRES_USER_PROD
-    export POSTGRES_PASSWORD=$POSTGRES_PASSWORD_PROD
-    export POSTGRES_DB=$POSTGRES_DB_PROD
+if [[ "$PROFILE" == "dev" ]]; then
+    export POSTGRES_USER="$POSTGRES_USER_DEV"
+    export POSTGRES_PASSWORD="$POSTGRES_PASSWORD_DEV"
+    export POSTGRES_DB="$POSTGRES_DB_DEV"
+elif [[ "$PROFILE" == "test" ]]; then
+    export POSTGRES_USER="$POSTGRES_USER_TEST"
+    export POSTGRES_PASSWORD="$POSTGRES_PASSWORD_TEST"
+    export POSTGRES_DB="$POSTGRES_DB_TEST"
+elif [[ "$PROFILE" == "prod" ]]; then
+    export POSTGRES_USER="$POSTGRES_USER_PROD"
+    export POSTGRES_PASSWORD="$POSTGRES_PASSWORD_PROD"
+    export POSTGRES_DB="$POSTGRES_DB_PROD"
 else
     echo "Unknown profile: $PROFILE"
     exit 1
 fi
 
-# Run Docker Compose with the specified profile
-docker-compose --profile $PROFILE up
+set +a
+POSTGRES_USER="$POSTGRES_USER" POSTGRES_PASSWORD="$POSTGRES_PASSWORD" POSTGRES_DB="$POSTGRES_DB" \
+docker-compose --profile "$PROFILE" up
