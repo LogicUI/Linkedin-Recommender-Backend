@@ -1,6 +1,6 @@
 python-dotenv
 llama-index
-openai
+openai==1.55.3
 cryptography
 uvicorn
 llama-index-vector-stores-postgres
