@@ -94,6 +94,23 @@ def _get_relevant_experiences(experiences: list[dict]) -> list[dict]:
     return relevant_experiences
 
 
+def _get_flatten_relevant_experiences(experiences: list[dict]) -> str:
+    experiences_field = ""
+    for experience in experiences: 
+        start_date = experience.get("starts_at", None)
+        start_date_format = date(start_date["year"], start_date["month"], 1).strftime("%b %Y")
+        end_date = experience.get("ends_at", None)
+        end_date_format = (
+            date.today().strftime("%b %Y")
+            if end_date is None
+            else date(end_date["year"], end_date["month"], 1).strftime("%b %Y")
+        )
+        experience_str = f"{experience['title']} at {experience['company']} from {start_date_format} to {end_date_format};"
+        experiences_field += experience_str + " "
+    logger.info(f"Experiences: {experiences_field}")
+    return experiences_field.strip()
+ 
+
 def _get_relevant_profile_files(profile: dict) -> dict:
     fields_to_keep = {
         "profile_url",
