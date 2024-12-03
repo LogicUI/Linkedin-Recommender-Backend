@@ -2,6 +2,7 @@ import json
 from datetime import date, timedelta
 import os
 import sys
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from logger_setup import setup_logger
 
@@ -96,20 +97,30 @@ def _get_relevant_experiences(experiences: list[dict]) -> list[dict]:
 
 def _get_flatten_relevant_experiences(experiences: list[dict]) -> str:
     experiences_field = ""
-    for experience in experiences: 
+    for experience in experiences:
         start_date = experience.get("starts_at", None)
-        start_date_format = date(start_date["year"], start_date["month"], 1).strftime("%b %Y")
-        end_date = experience.get("ends_at", None)
-        end_date_format = (
-            date.today().strftime("%b %Y")
-            if end_date is None
-            else date(end_date["year"], end_date["month"], 1).strftime("%b %Y")
+        starting_date = (
+            date.today()
+            if start_date is None
+            else date(start_date["year"], start_date["month"], 1)
         )
+        start_date_format = starting_date.strftime("%b %Y")
+        end_date = experience.get("ends_at", None)
+        ending_date = (
+            date.today()
+            if end_date is None
+            else date(end_date["year"], end_date["month"], 1)
+        )
+        end_date_format = ending_date.strftime("%b %Y")
+
+        if starting_date > ending_date:
+            raise ValueError("Start date must be earlier than end date.")
+
         experience_str = f"{experience['title']} at {experience['company']} from {start_date_format} to {end_date_format};"
         experiences_field += experience_str + " "
     logger.info(f"Experiences: {experiences_field}")
     return experiences_field.strip()
- 
+
 
 def _get_relevant_profile_files(profile: dict) -> dict:
     fields_to_keep = {
