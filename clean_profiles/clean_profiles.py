@@ -94,6 +94,29 @@ def _get_relevant_experiences(experiences: list[dict]) -> list[dict]:
 
     return relevant_experiences
 
+def get_flattten_relevent_education(education: list[dict]) -> str:
+    if not isinstance(education, list) or len(education) == 0:
+        return ""
+    
+    education_field = ""
+    
+    for edu in education:
+        if not isinstance(edu, dict):
+            continue
+        
+        degree_name = edu.get("degree_name")
+        school = edu.get("school")
+        
+        if not degree_name or not school:
+            continue
+                
+        education_to_append = f"{degree_name} at {school}; "
+        if degree_name and school and education_field.find(education_to_append) == -1:
+            education_field += education_to_append
+
+    
+    return education_field.strip()
+
 
 def _get_flatten_relevant_experiences(experiences: list[dict]) -> str:
     experiences_field = ""
