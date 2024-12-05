@@ -155,9 +155,8 @@ def _get_relevant_profile_files(profile: dict) -> dict:
     fields_to_keep = {
         "profile_url",
         "full_name",
-        "current_occupation",
+        "occupation",
         "country_full_name",
-        "certifications",
         "personal_emails",
     }
 
@@ -220,18 +219,41 @@ def extract_relavant_profile_properties(profile_name: dict) -> dict:
 
         experiences = data.get("experiences", [])
         education = data.get("education", [])
+        certifications = data.get("certifications", [])
 
         relevant_experiences = _get_relevant_experiences(experiences)
         relevant_profile_fields = _get_relevant_profile_files(data)
         companies_worked_for = _get_company_worked_for(relevant_experiences)
         total_experiences = _calculate_total_experiences(relevant_experiences)
         relevant_educations = _get_relevant_education(education)
+        
+        education_summary = _get_flatten_relevant_fields(education, " at ", degree_name="degree_name", school="school" )
+        experience_summary = _get_flatten_relevant_experiences(experiences)  
+        certification_summary = _get_flatten_relevant_fields(certifications," from ",name="name",authority="authority")
+        title_summary = _get_flatten_relevant_fields(experiences,between_words=" ",title="title")
+      
+        meta_data = {
+          "full_name": relevant_profile_fields["full_name"],
+          "current_occupation": relevant_profile_fields["occupation"],
+          "years_of_experiences": total_experiences,
+          "experience_summary": experience_summary,
+          "experiences": relevant_experiences, 
+          "education": relevant_educations,
+          "education_summary": education_summary,
+          "titles_held":title_summary,
+          "certifications": certifications,
+          "certifications_summary": certification_summary
+          
+        }
 
         profile_details = {
-            "experience_details": relevant_experiences,
+            "experience_details": experience_summary,
+            "certification_details": certification_summary, 
+            "titles_held": title_summary,
             "companies_worked_for": companies_worked_for,
-            "total_experieinces": total_experiences,
-            "education": relevant_educations,
+            "total_experiences": total_experiences,
+            "education": education_summary,
+            "meta_data": meta_data,
             **relevant_profile_fields,
         }
 

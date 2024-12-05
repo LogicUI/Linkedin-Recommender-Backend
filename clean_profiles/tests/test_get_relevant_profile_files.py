@@ -10,17 +10,15 @@ class TestRelevantProfiles:
         profile = {
             "profile_url": "https://example.com",
             "full_name": "John Doe",
-            "current_occupation": "Software Engineer",
+            "occupation": "Software Engineer",
             "country_full_name": "United States",
-            "certifications": ["AWS Certified", "PMP"],
             "personal_emails": ["john.doe@example.com"],
         }
         expected = {
             "profile_url": "https://example.com",
             "full_name": "John Doe",
-            "current_occupation": "Software Engineer",
+            "occupation": "Software Engineer",
             "country_full_name": "United States",
-            "certifications": ["AWS Certified", "PMP"],
             "personal_emails": ["john.doe@example.com"],
         }
         assert _get_relevant_profile_files(profile) == expected
@@ -29,12 +27,12 @@ class TestRelevantProfiles:
         profile = {
             "profile_url": "https://example.com",
             "full_name": "Jane Smith",
-            "current_occupation": "Data Scientist",
+            "occupation": "Data Scientist",
         }
         expected = {
             "profile_url": "https://example.com",
             "full_name": "Jane Smith",
-            "current_occupation": "Data Scientist",
+            "occupation": "Data Scientist",
             "personal_emails": [],
         }
         assert _get_relevant_profile_files(profile) == expected
@@ -55,13 +53,13 @@ class TestRelevantProfiles:
     def test_missing_full_name_field(self):
         profile = {
             "profile_url": "https://example.com",
-            "current_occupation": "Project Manager",
+            "occupation": "Project Manager",
             "personal_emails": ["manager@example.com"],
         }
         expected = {
             "profile_url": "https://example.com",
             "full_name": "Unknown",
-            "current_occupation": "Project Manager",
+            "occupation": "Project Manager",
             "personal_emails": ["manager@example.com"],
         }
         assert _get_relevant_profile_files(profile) == expected
@@ -83,12 +81,10 @@ class TestRelevantProfiles:
         profile = {
             "profile_url": "https://example.com",
             "full_name": "",
-            "certifications": ["Azure Certified"],
         }
         expected = {
             "profile_url": "https://example.com",
             "full_name": "Unknown",
-            "certifications": ["Azure Certified"],
             "personal_emails": [],
         }
         assert _get_relevant_profile_files(profile) == expected
@@ -97,12 +93,12 @@ class TestRelevantProfiles:
         profile = {
             "profile_url": "https://example.com",
             "full_name": "Bob",
-            "current_occupation": "Developer",
+            "occupation": "Developer",
         }
         expected = {
             "profile_url": "https://example.com",
             "full_name": "Bob",
-            "current_occupation": "Developer",
+            "occupation": "Developer",
             "personal_emails": [],
         }
         assert _get_relevant_profile_files(profile) == expected
