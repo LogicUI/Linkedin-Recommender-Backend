@@ -94,28 +94,34 @@ def _get_relevant_experiences(experiences: list[dict]) -> list[dict]:
 
     return relevant_experiences
 
-def get_flattten_relevent_education(education: list[dict]) -> str:
-    if not isinstance(education, list) or len(education) == 0:
-        return ""
-    
-    education_field = ""
-    
-    for edu in education:
-        if not isinstance(edu, dict):
-            continue
-        
-        degree_name = edu.get("degree_name")
-        school = edu.get("school")
-        
-        if not degree_name or not school:
-            continue
-                
-        education_to_append = f"{degree_name} at {school}; "
-        if degree_name and school and education_field.find(education_to_append) == -1:
-            education_field += education_to_append
 
-    
-    return education_field.strip()
+
+def _get_flatten_relevant_fields(
+    dict_list: list[dict], between_words: str, **key_names: list[str]
+) -> str:
+    if not isinstance(dict_list, list) or len(dict_list) == 0:
+        return ""
+
+    relevant_field = ""
+
+    unique_values = set()
+    relevant_field = ""
+
+    for dic in dict_list:
+        if not isinstance(dic, dict):
+            continue
+
+        values = [
+            dic.get(key) for key in key_names.values() if dic.get(key) is not None
+        ]
+        if len(values) == len(key_names):
+            formatted_values = between_words.join(values)
+            if formatted_values not in unique_values:
+                unique_values.add(formatted_values)
+                relevant_field += f"{formatted_values}; "
+
+    logger.info(f"Relevant field: {relevant_field}")
+    return relevant_field.strip()
 
 
 def _get_flatten_relevant_experiences(experiences: list[dict]) -> str:

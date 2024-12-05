@@ -194,3 +194,4 @@ class TestFlattenRelevantExperiences:
         ]
         with pytest.raises(TypeError):  # Adjust to the appropriate exception
             _get_flatten_relevant_experiences(experiences)
+
